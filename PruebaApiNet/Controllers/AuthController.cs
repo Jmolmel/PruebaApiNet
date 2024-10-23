@@ -31,7 +31,14 @@ public class AuthController : ControllerBase
         return "Si puedes leer esto es que estás identificado";
     }
 
+    [Authorize(Roles = "admin")]
+    [HttpGet("admin")]
+    public string GetAdminMessage()
+    {
+        return "Si puedes leer esto, eres el admin";
+    }
 
+    [AllowAnonymous] // Se pone para que todos puedan llamarlo es decir EL LOGIN y el registro.
     [HttpPost]
     public ActionResult<string> Login([FromBody] LoginDto data)
     {
@@ -42,7 +49,7 @@ public class AuthController : ControllerBase
                 Claims = new Dictionary<string, object>
                 {
                     { "id", 23},
-                    { ClaimTypes.Role, "admin" }
+                    { ClaimTypes.Role, "" }
                 },
                 Expires = DateTime.UtcNow.AddHours(1), //Tiempo de expiracion
                 SigningCredentials = new SigningCredentials(
