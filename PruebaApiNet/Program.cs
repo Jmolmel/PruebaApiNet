@@ -1,9 +1,11 @@
 
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Writers;
 using PruebaApi.Repositories;
 using PruebaApiNet.Database;
 using PruebaApiNet.Repositories;
 using PruebaApiNet.SakilaDatabase;
+using System.Text;
 using System.Text.Json.Serialization;
 
 namespace PruebaApiNet
@@ -31,6 +33,23 @@ namespace PruebaApiNet
             //builder.Services.AddScoped<LenguajeRepository>();
             builder.Services.AddScoped<UnitOfWork>();
 
+            builder.Services.AddAuthentication()
+                .AddJwtBearer(options =>
+                {
+                    string key = "PatatasPacoPatatasPacoPatatasPacoPatatasPacoPatatasPacoPatatasPacoPatatasPaco"; //Clave muy segura, mínimo 25 caracteres
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        //Si no nos importa que se valide el emisor del token, lo desactivamos.
+                        ValidateIssuer = false,
+                        //Si no nos importa que se valida para quien o para que proposito esta destinado el token, lo desactivamos
+                        ValidateAudience = false,
+                        //Indicamos la clave
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+
+                    };
+                });
+
             var app = builder.Build(); 
 
             // Configure the HTTP request pipeline.
@@ -42,7 +61,8 @@ namespace PruebaApiNet
 
             app.UseHttpsRedirection();
 
-            app.UseAuthorization();
+            app.UseAuthentication();  //Autenticamos primero
+            app.UseAuthorization();   //Autorizamos despues
 
 
             app.MapControllers();
